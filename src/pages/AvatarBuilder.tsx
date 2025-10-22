@@ -87,6 +87,16 @@ export default function AvatarBuilder() {
       
       const analysis = await analyzeAvatar(avatarData);
       updateAvatar({ ...avatarData, ...analysis });
+      
+      // Update local state with analysis results
+      if (analysis.primaryCurrency) {
+        setPrimaryCurrency(analysis.primaryCurrency);
+      }
+      if (analysis.millionDollarMessage) {
+        setMillionDollarMessage(analysis.millionDollarMessage);
+      }
+      
+      alert('✅ Avatar analysis complete! Check the updated "Primary Currency" and "Million Dollar Message" fields above.');
     } catch (error) {
       console.error('Analysis error:', error);
       alert('Failed to analyze avatar. Please try again.');
