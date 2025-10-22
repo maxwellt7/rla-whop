@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://your-railway-backend.railway.app/api/:path*"
+      "destination": "https://rapid-launch-agent-production.up.railway.app/api/:path*"
     },
     {
       "source": "/(.*)",
@@ -25,7 +25,7 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://your-railway-backend.railway.app/api"
+    "VITE_API_URL": "https://rapid-launch-agent-production.up.railway.app/api"
   }
 }
 
