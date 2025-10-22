@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../store/useProjectStore';
-import { Users, ArrowRight, Loader2, Upload } from 'lucide-react';
+import { Users, ArrowRight, Loader2 } from 'lucide-react';
 import { analyzeAvatar } from '../services/api';
 import type { AvatarData, Demographics, WEBAnalysis, EmpathyMap, GoalsGrid } from '../types';
 

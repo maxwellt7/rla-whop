@@ -4,20 +4,6 @@ import { FileText, Download, Loader2, Search } from 'lucide-react';
 import { generateLaunchDocument } from '../services/api';
 import ReactMarkdown from 'react-markdown';
 
-const LAUNCH_DOC_SECTIONS = [
-  'Prospect analysis', 'Prospect WEB Analysis', 'Competitor analysis', '10-point product analysis',
-  '3 types of benefits', 'Promise exposure spectrum', 'Prospect awareness pyramid',
-  '3D prospect psyche profile', 'Perfect customer-generating product', 'Engineering the perfect offer',
-  'Type of offer', 'Deliverable, feature, why', 'Price & terms', 'Risk reversal',
-  'Premiums/Bonuses', 'Reason to respond now', 'Close and call to action',
-  'Perfect marketing thesis', 'Marketing thesis solution', 'The big idea',
-  'Primary promise', 'Unique mechanism & type', 'Relevant metaphors',
-  'Front end ascension model', 'Open loops', 'Headlines', 'Perfect lead',
-  'Credibility', '4 Beliefs', 'EMBC', 'CPB Chunks', 'Minimum viable funnel',
-  'Traffic captivation page', 'Perfect marketing/sales page', 'VSL structure/outline',
-  'Order form elements', 'Perfect upsell sequence', 'Additional optimizations',
-];
-
 export default function LaunchDocument() {
   const { currentProject, updateLaunchDoc } = useProjectStore();
   const [loading, setLoading] = useState(false);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../store/useProjectStore';
 import { Brain, ArrowRight, Loader2, CheckCircle2, Circle } from 'lucide-react';
@@ -27,7 +27,7 @@ export default function Manifold() {
   const { currentProject, updateManifold, setCurrentStep } = useProjectStore();
   const [loading, setLoading] = useState(false);
   const [currentNode, setCurrentNode] = useState(0);
-  const [results, setResults] = useState<Record<string, string>>(
+  const [results, setResults] = useState<any>(
     currentProject?.manifold || {}
   );
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
