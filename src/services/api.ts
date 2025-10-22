@@ -3,12 +3,57 @@ import type { OfferData, OfferAnalysis, AvatarData, CompetitorData, ManifoldData
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
+console.log('🔧 API Configuration:', {
+  baseURL: API_BASE_URL,
+  env: import.meta.env.VITE_API_URL,
+  mode: import.meta.env.MODE,
+});
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// Add request interceptor for debugging
+api.interceptors.request.use(
+  (config) => {
+    console.log('📤 API Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`,
+    });
+    return config;
+  },
+  (error) => {
+    console.error('❌ Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for debugging
+api.interceptors.response.use(
+  (response) => {
+    console.log('✅ API Response:', {
+      status: response.status,
+      url: response.config.url,
+      data: response.data,
+    });
+    return response;
+  },
+  (error) => {
+    console.error('❌ API Error:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      url: error.config?.url,
+      data: error.response?.data,
+    });
+    return Promise.reject(error);
+  }
+);
 
 // Offer Analysis
 export async function analyzeOffer(offerData: OfferData): Promise<OfferAnalysis> {
