@@ -117,7 +117,7 @@ export default function LaunchDocument() {
     setGenerationStatus('in_progress');
 
     try {
-      const docData = await generateLaunchDocument({
+      const response = await generateLaunchDocument({
         offer: currentProject.offer,
         avatar: currentProject.avatar,
         competitors: currentProject.competitors,
@@ -126,8 +126,11 @@ export default function LaunchDocument() {
         resume,
       });
 
-      setGenerationId(docData.generationId);
+      // Backend now returns immediately with generation ID
+      setGenerationId(response.generationId);
       setProgress({ completed: 0, total: 38 });
+
+      console.log('✅ Generation started:', response.generationId);
     } catch (error) {
       console.error('Generation error:', error);
       setLoading(false);
