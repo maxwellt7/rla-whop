@@ -1,4 +1,5 @@
 import { callClaude } from '../config/anthropic.js';
+import { launchDocDB } from '../config/database.js';
 
 const LAUNCH_DOC_SECTIONS = [
   { id: 1, title: 'Prospect Analysis', key: 'prospectAnalysis' },
@@ -81,7 +82,7 @@ Aim for 300-600 words per section.`;
 
 export async function generateLaunchDocRoute(req, res) {
   try {
-    const { offer, avatar, competitors, manifold } = req.body;
+    const { offer, avatar, competitors, manifold, projectId, resume = false } = req.body;
 
     if (!offer || !avatar || !manifold) {
       return res.status(400).json({
@@ -90,7 +91,36 @@ export async function generateLaunchDocRoute(req, res) {
       });
     }
 
+    if (!projectId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Project ID is required',
+      });
+    }
+
     console.log('📄 Generating Launch Document...');
+
+    let generationId;
+    let completedSections = new Set();
+
+    // Check if we're resuming an existing generation
+    if (resume) {
+      const latestGen = launchDocDB.getLatestGeneration(projectId);
+      if (latestGen && latestGen.status !== 'completed') {
+        generationId = latestGen.id;
+        completedSections = new Set(launchDocDB.getCompletedSectionNumbers(generationId));
+        console.log(`📝 Resuming generation ${generationId} (${completedSections.size} sections already completed)`);
+      }
+    }
+
+    // Create new generation if not resuming
+    if (!generationId) {
+      generationId = launchDocDB.createGeneration(projectId);
+      console.log(`🆕 Created new generation: ${generationId}`);
+    }
+
+    // Update status to in_progress
+    launchDocDB.updateGenerationStatus(generationId, 'in_progress');
 
     const context = {
       offer,
@@ -101,29 +131,63 @@ export async function generateLaunchDocRoute(req, res) {
 
     const sections = [];
 
-    // Generate each section
-    for (let i = 0; i < LAUNCH_DOC_SECTIONS.length; i++) {
-      const sectionData = LAUNCH_DOC_SECTIONS[i];
-      console.log(`Generating section ${i + 1}/${LAUNCH_DOC_SECTIONS.length}: ${sectionData.title}`);
+    try {
+      // Generate each section
+      for (let i = 0; i < LAUNCH_DOC_SECTIONS.length; i++) {
+        const sectionData = LAUNCH_DOC_SECTIONS[i];
 
-      const content = await generateSection(sectionData, context);
+        // Skip if already completed (for resume functionality)
+        if (completedSections.has(sectionData.id)) {
+          console.log(`⏭️  Skipping section ${i + 1}/${LAUNCH_DOC_SECTIONS.length}: ${sectionData.title} (already completed)`);
+          continue;
+        }
 
-      sections.push({
-        id: sectionData.id,
-        title: sectionData.title,
-        content,
+        console.log(`Generating section ${i + 1}/${LAUNCH_DOC_SECTIONS.length}: ${sectionData.title}`);
+
+        const content = await generateSection(sectionData, context);
+
+        // Save section to database immediately
+        launchDocDB.saveSection(
+          generationId,
+          sectionData.id,
+          sectionData.title,
+          sectionData.key,
+          content
+        );
+
+        sections.push({
+          id: sectionData.id,
+          title: sectionData.title,
+          content,
+        });
+
+        console.log(`✅ Saved section ${i + 1}/${LAUNCH_DOC_SECTIONS.length}`);
+      }
+
+      // Mark generation as completed
+      launchDocDB.updateGenerationStatus(generationId, 'completed');
+      console.log('✅ Launch Document Generation Complete');
+
+      // Get all sections from database
+      const allSections = launchDocDB.getSections(generationId);
+
+      res.json({
+        success: true,
+        data: {
+          generationId,
+          sections: allSections.map(s => ({
+            id: s.section_number,
+            title: s.section_title,
+            content: s.content,
+          })),
+          generatedAt: new Date().toISOString(),
+        },
       });
+    } catch (error) {
+      // Mark generation as failed
+      launchDocDB.updateGenerationStatus(generationId, 'failed', error.message);
+      throw error;
     }
-
-    console.log('✅ Launch Document Generation Complete');
-
-    res.json({
-      success: true,
-      data: {
-        sections,
-        generatedAt: new Date().toISOString(),
-      },
-    });
   } catch (error) {
     console.error('Launch document generation error:', error);
     res.status(500).json({

@@ -52,3 +52,9 @@ server.log
 
 # Build artifacts
 *.tsbuildinfo
+
+# Database
+data/
+*.db
+*.db-shm
+*.db-wal

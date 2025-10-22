@@ -10,6 +10,7 @@ import { runManifoldRoute } from './routes/manifoldWorkflow.js';
 import { generateLaunchDocRoute } from './routes/launchDocument.js';
 import { queryRoute } from './routes/query.js';
 import { exportRoute } from './routes/export.js';
+import { getGenerationProgressRoute, getLatestGenerationRoute } from './routes/progress.js';
 
 // Get the directory name in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -44,6 +45,8 @@ app.post('/api/analyze/avatar', analyzeAvatarRoute);
 app.post('/api/analyze/competitors', analyzeCompetitorsRoute);
 app.post('/api/analyze/manifold', runManifoldRoute);
 app.post('/api/generate/launch-document', generateLaunchDocRoute);
+app.get('/api/generation/progress/:generationId', getGenerationProgressRoute);
+app.get('/api/generation/latest/:projectId', getLatestGenerationRoute);
 app.post('/api/query', queryRoute);
 app.post('/api/export/:format', exportRoute);
 

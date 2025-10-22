@@ -12,34 +12,64 @@ export const CLAUDE_MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-2025051
 export const CLAUDE_TEMPERATURE = parseFloat(process.env.CLAUDE_TEMPERATURE || '0.7');
 
 /**
+ * Sleep helper for retry delays
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
  * Call Claude with a prompt and return the response
+ * Includes retry logic for rate limits and transient errors
  */
 export async function callClaude(systemPrompt, userPrompt, options = {}) {
   const {
     model = CLAUDE_MODEL,
     temperature = CLAUDE_TEMPERATURE,
     maxTokens = 4000,
+    maxRetries = 3,
   } = options;
 
-  try {
-    const response = await anthropic.messages.create({
-      model,
-      max_tokens: maxTokens,
-      temperature,
-      system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: userPrompt,
-        },
-      ],
-    });
+  let lastError;
 
-    return response.content[0].text;
-  } catch (error) {
-    console.error('Anthropic API Error:', error.message);
-    throw new Error(`Anthropic API call failed: ${error.message}`);
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await anthropic.messages.create({
+        model,
+        max_tokens: maxTokens,
+        temperature,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: userPrompt,
+          },
+        ],
+      });
+
+      return response.content[0].text;
+    } catch (error) {
+      lastError = error;
+
+      // Check if it's a rate limit error (429) or server error (5xx)
+      const isRetryable =
+        error.status === 429 ||
+        error.status === 529 ||
+        (error.status >= 500 && error.status < 600);
+
+      if (!isRetryable || attempt === maxRetries) {
+        console.error('Anthropic API Error:', error.message);
+        throw new Error(`Anthropic API call failed: ${error.message}`);
+      }
+
+      // Exponential backoff: 2^attempt seconds
+      const delayMs = Math.pow(2, attempt) * 1000;
+      console.warn(`Anthropic API rate limited or error. Retrying in ${delayMs}ms... (attempt ${attempt + 1}/${maxRetries})`);
+      await sleep(delayMs);
+    }
   }
+
+  throw new Error(`Anthropic API call failed after ${maxRetries} retries: ${lastError.message}`);
 }
 
 /**

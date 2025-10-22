@@ -47,11 +47,53 @@ export async function generateLaunchDocument(data: {
   avatar: AvatarData;
   competitors: CompetitorData | null;
   manifold: ManifoldData;
+  projectId: string;
+  resume?: boolean;
 }): Promise<LaunchDocData> {
-  // Launch doc takes 15-20 minutes for 38 sections - need long timeout
+  // Launch doc takes 20-30 minutes for 38 sections - need long timeout
   const response = await api.post('/generate/launch-document', data, {
-    timeout: 1200000, // 20 minutes
+    timeout: 2400000, // 40 minutes to handle API rate limits and delays
   });
+  return response.data.data;
+}
+
+// Get generation progress
+export async function getGenerationProgress(generationId: string): Promise<{
+  generationId: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  totalSections: number;
+  completedSections: number;
+  startedAt: string;
+  completedAt: string | null;
+  errorMessage: string | null;
+  sections: Array<{
+    id: number;
+    title: string;
+    content: string;
+    generatedAt: string;
+  }>;
+}> {
+  const response = await api.get(`/generation/progress/${generationId}`);
+  return response.data.data;
+}
+
+// Get latest generation for a project
+export async function getLatestGeneration(projectId: string): Promise<{
+  generationId: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  totalSections: number;
+  completedSections: number;
+  startedAt: string;
+  completedAt: string | null;
+  errorMessage: string | null;
+  sections: Array<{
+    id: number;
+    title: string;
+    content: string;
+    generatedAt: string;
+  }>;
+} | null> {
+  const response = await api.get(`/generation/latest/${projectId}`);
   return response.data.data;
 }
 

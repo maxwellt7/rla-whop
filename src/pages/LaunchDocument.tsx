@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProjectStore } from '../store/useProjectStore';
-import { FileText, Download, Loader2, Search } from 'lucide-react';
-import { generateLaunchDocument } from '../services/api';
+import { FileText, Download, Loader2, Search, RefreshCw } from 'lucide-react';
+import { generateLaunchDocument, getGenerationProgress, getLatestGeneration } from '../services/api';
 import ReactMarkdown from 'react-markdown';
 
 export default function LaunchDocument() {
@@ -9,43 +9,130 @@ export default function LaunchDocument() {
   const [loading, setLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [generationId, setGenerationId] = useState<string | null>(null);
+  const [progress, setProgress] = useState({ completed: 0, total: 38 });
+  const [generationStatus, setGenerationStatus] = useState<'idle' | 'in_progress' | 'completed' | 'failed'>('idle');
 
   const launchDoc = currentProject?.launchDoc;
   const isGenerated = launchDoc && launchDoc.sections && launchDoc.sections.length > 0;
 
-  const handleGenerate = async () => {
+  // Check for existing in-progress generation on mount
+  useEffect(() => {
+    const checkExistingGeneration = async () => {
+      if (!currentProject?.id) return;
+
+      try {
+        const latest = await getLatestGeneration(currentProject.id);
+        if (latest && latest.status === 'in_progress') {
+          setGenerationId(latest.generationId);
+          setGenerationStatus('in_progress');
+          setLoading(true);
+          setProgress({ completed: latest.completedSections, total: latest.totalSections });
+
+          // Update launch doc with existing sections
+          if (latest.sections.length > 0) {
+            updateLaunchDoc({
+              sections: latest.sections,
+              generatedAt: latest.startedAt,
+            });
+          }
+        } else if (latest && latest.status === 'completed') {
+          // Load completed generation
+          updateLaunchDoc({
+            sections: latest.sections,
+            generatedAt: latest.completedAt || latest.startedAt,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to check existing generation:', error);
+      }
+    };
+
+    checkExistingGeneration();
+  }, [currentProject?.id]);
+
+  // Poll for progress updates
+  useEffect(() => {
+    if (!generationId || generationStatus !== 'in_progress') return;
+
+    const interval = setInterval(async () => {
+      try {
+        const progressData = await getGenerationProgress(generationId);
+        setProgress({ completed: progressData.completedSections, total: progressData.totalSections });
+
+        // Update launch doc with new sections
+        if (progressData.sections.length > 0) {
+          updateLaunchDoc({
+            sections: progressData.sections,
+            generatedAt: progressData.startedAt,
+          });
+        }
+
+        // Check if completed or failed
+        if (progressData.status === 'completed') {
+          setGenerationStatus('completed');
+          setLoading(false);
+          clearInterval(interval);
+          alert('✅ Launch Document generated successfully! All 38 sections are complete.');
+        } else if (progressData.status === 'failed') {
+          setGenerationStatus('failed');
+          setLoading(false);
+          clearInterval(interval);
+          alert(`❌ Generation failed: ${progressData.errorMessage || 'Unknown error'}. You can resume generation to pick up where it left off.`);
+        }
+      } catch (error) {
+        console.error('Failed to fetch progress:', error);
+      }
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [generationId, generationStatus]);
+
+  const handleGenerate = async (resume = false) => {
     if (!currentProject?.offer || !currentProject?.avatar || !currentProject?.manifold) {
       alert('Please complete all previous steps first');
       return;
     }
 
-    const confirmed = window.confirm(
-      '⏰ Launch Document Generation\n\n' +
-      'This will generate all 38 sections of your marketing brief.\n\n' +
-      '⚠️ This takes 15-20 minutes to complete.\n' +
-      '✅ You can leave this tab open and wait.\n' +
-      '✅ The backend will process all sections.\n\n' +
-      'Do you want to continue?'
-    );
-    
+    if (!currentProject.id) {
+      alert('Project ID is required');
+      return;
+    }
+
+    const message = resume
+      ? '🔄 Resume Generation\n\nThis will resume from where the previous generation left off.\n\nDo you want to continue?'
+      : '⏰ Launch Document Generation\n\n' +
+        'This will generate all 38 sections of your marketing brief.\n\n' +
+        '⚠️ This takes 20-30 minutes to complete.\n' +
+        '✅ Sections are saved as they\'re generated.\n' +
+        '✅ You can safely close this tab and come back later.\n' +
+        '✅ If generation fails, you can resume from where it left off.\n\n' +
+        'Do you want to continue?';
+
+    const confirmed = window.confirm(message);
+
     if (!confirmed) return;
 
     setLoading(true);
+    setGenerationStatus('in_progress');
+
     try {
       const docData = await generateLaunchDocument({
         offer: currentProject.offer,
         avatar: currentProject.avatar,
         competitors: currentProject.competitors,
         manifold: currentProject.manifold,
+        projectId: currentProject.id,
+        resume,
       });
-      
-      updateLaunchDoc(docData);
-      alert('✅ Launch Document generated successfully! All 38 sections are complete. Navigate through them using the sidebar.');
+
+      setGenerationId(docData.generationId);
+      setProgress({ completed: 0, total: 38 });
     } catch (error) {
       console.error('Generation error:', error);
-      alert('❌ Failed to generate launch document. This usually happens if the generation takes too long or the connection is interrupted. Please try again.');
-    } finally {
       setLoading(false);
+      setGenerationStatus('failed');
+      alert('❌ Failed to start generation. Please try again.');
     }
   };
 
@@ -164,12 +251,46 @@ export default function LaunchDocument() {
           {loading && (
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-lg mx-auto">
               <p className="text-blue-900 font-medium mb-2">
-                ⏰ Generating all 38 sections...
+                ⏰ Generating Launch Document...
               </p>
+
+              {/* Progress bar */}
+              <div className="mb-3">
+                <div className="flex justify-between text-sm text-blue-700 mb-1">
+                  <span>Progress</span>
+                  <span>{progress.completed} / {progress.total} sections</span>
+                </div>
+                <div className="w-full bg-blue-200 rounded-full h-2.5">
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                    style={{ width: `${(progress.completed / progress.total) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+
               <p className="text-blue-700 text-sm">
-                This takes 15-20 minutes. Please keep this tab open.
-                The backend is processing each section with Claude AI.
+                This takes 20-30 minutes. Sections are saved as they're generated.
+                You can safely close this tab and come back - your progress is saved!
               </p>
+            </div>
+          )}
+
+          {generationStatus === 'failed' && (
+            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg max-w-lg mx-auto">
+              <p className="text-yellow-900 font-medium mb-2">
+                ⚠️ Generation Interrupted
+              </p>
+              <p className="text-yellow-700 text-sm mb-3">
+                The generation was interrupted after completing {progress.completed} of {progress.total} sections.
+                You can resume from where it left off.
+              </p>
+              <button
+                onClick={() => handleGenerate(true)}
+                className="btn btn-primary flex items-center space-x-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Resume Generation</span>
+              </button>
             </div>
           )}
         </div>
