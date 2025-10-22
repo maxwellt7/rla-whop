@@ -19,6 +19,17 @@ export default function LaunchDocument() {
       return;
     }
 
+    const confirmed = window.confirm(
+      '⏰ Launch Document Generation\n\n' +
+      'This will generate all 38 sections of your marketing brief.\n\n' +
+      '⚠️ This takes 15-20 minutes to complete.\n' +
+      '✅ You can leave this tab open and wait.\n' +
+      '✅ The backend will process all sections.\n\n' +
+      'Do you want to continue?'
+    );
+    
+    if (!confirmed) return;
+
     setLoading(true);
     try {
       const docData = await generateLaunchDocument({
@@ -29,9 +40,10 @@ export default function LaunchDocument() {
       });
       
       updateLaunchDoc(docData);
+      alert('✅ Launch Document generated successfully! All 38 sections are complete. Navigate through them using the sidebar.');
     } catch (error) {
       console.error('Generation error:', error);
-      alert('Failed to generate launch document. Please try again.');
+      alert('❌ Failed to generate launch document. This usually happens if the generation takes too long or the connection is interrupted. Please try again.');
     } finally {
       setLoading(false);
     }

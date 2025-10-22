@@ -34,7 +34,10 @@ export async function runManifoldWorkflow(data: {
   avatar: AvatarData;
   competitors: CompetitorData | null;
 }): Promise<ManifoldData> {
-  const response = await api.post('/analyze/manifold', data);
+  // Manifold takes 5-10 minutes for 14 nodes - need long timeout
+  const response = await api.post('/analyze/manifold', data, {
+    timeout: 600000, // 10 minutes
+  });
   return response.data.data;
 }
 
@@ -45,7 +48,10 @@ export async function generateLaunchDocument(data: {
   competitors: CompetitorData | null;
   manifold: ManifoldData;
 }): Promise<LaunchDocData> {
-  const response = await api.post('/generate/launch-document', data);
+  // Launch doc takes 15-20 minutes for 38 sections - need long timeout
+  const response = await api.post('/generate/launch-document', data, {
+    timeout: 1200000, // 20 minutes
+  });
   return response.data.data;
 }
 
