@@ -43,6 +43,16 @@ export default function Manifold() {
     setLoading(true);
     setCurrentNode(0);
     
+    // Simulate progress updates (each node takes ~10-20 seconds)
+    const progressInterval = setInterval(() => {
+      setCurrentNode((prev) => {
+        if (prev < MANIFOLD_NODES.length - 1) {
+          return prev + 1;
+        }
+        return prev;
+      });
+    }, 12000); // Update every 12 seconds
+    
     try {
       const manifoldData = await runManifoldWorkflow({
         offer: currentProject.offer,
@@ -50,9 +60,13 @@ export default function Manifold() {
         competitors: currentProject.competitors,
       });
       
+      clearInterval(progressInterval);
+      setCurrentNode(MANIFOLD_NODES.length - 1);
       setResults(manifoldData);
       updateManifold(manifoldData);
+      alert('✅ Manifold workflow complete! All 14 nodes have been processed. Click on any node to view the results.');
     } catch (error) {
+      clearInterval(progressInterval);
       console.error('Workflow error:', error);
       alert('Failed to run manifold workflow. Please try again.');
     } finally {
@@ -76,6 +90,27 @@ export default function Manifold() {
         <p className="text-gray-600">
           Run the 14-node workflow to generate deep psychological insights, hooks, stories, and copywriting frameworks.
         </p>
+        {loading && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-blue-900 font-medium">
+                Processing node {currentNode + 1} of {MANIFOLD_NODES.length}...
+              </span>
+              <span className="text-blue-600 text-sm">
+                {Math.round(((currentNode + 1) / MANIFOLD_NODES.length) * 100)}%
+              </span>
+            </div>
+            <div className="w-full bg-blue-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
+                style={{ width: `${((currentNode + 1) / MANIFOLD_NODES.length) * 100}%` }}
+              />
+            </div>
+            <p className="text-blue-700 text-sm mt-2">
+              This takes 2-4 minutes. Each node analyzes your avatar and offer deeply.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
