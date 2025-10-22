@@ -162,9 +162,15 @@ export default function LaunchDocument() {
           </button>
 
           {loading && (
-            <p className="text-sm text-gray-500 mt-4">
-              This may take 2-3 minutes. Please don't close this page.
-            </p>
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-lg mx-auto">
+              <p className="text-blue-900 font-medium mb-2">
+                ⏰ Generating all 38 sections...
+              </p>
+              <p className="text-blue-700 text-sm">
+                This takes 15-20 minutes. Please keep this tab open.
+                The backend is processing each section with Claude AI.
+              </p>
+            </div>
           )}
         </div>
       ) : (
