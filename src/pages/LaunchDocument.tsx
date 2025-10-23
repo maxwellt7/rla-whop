@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../store/useProjectStore';
-import { FileText, Download, Loader2, Search, RefreshCw } from 'lucide-react';
+import { FileText, Download, Loader2, Search, RefreshCw, Package } from 'lucide-react';
 import { generateLaunchDocument, getGenerationProgress, getLatestGeneration } from '../services/api';
 import ReactMarkdown from 'react-markdown';
 
 export default function LaunchDocument() {
+  const navigate = useNavigate();
   const { currentProject, updateLaunchDoc } = useProjectStore();
   const [loading, setLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState(0);
@@ -171,6 +173,13 @@ export default function LaunchDocument() {
           
           {isGenerated && (
             <div className="flex space-x-2">
+              <button
+                onClick={() => navigate('/project/summary')}
+                className="btn btn-primary flex items-center space-x-2"
+              >
+                <Package className="w-4 h-4" />
+                <span>View Project Summary</span>
+              </button>
               <button
                 onClick={() => handleExport('md')}
                 className="btn btn-outline flex items-center space-x-2"

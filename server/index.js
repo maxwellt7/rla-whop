@@ -1,8 +1,17 @@
-import express from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+
+// Get the directory name in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load .env from project root FIRST before importing routes
+dotenv.config({ path: join(__dirname, '..', '.env') });
+
+// Now import everything else after env is loaded
+import express from 'express';
+import cors from 'cors';
 import { analyzeOfferRoute } from './routes/offerAnalysis.js';
 import { analyzeAvatarRoute } from './routes/avatarAnalysis.js';
 import { analyzeCompetitorsRoute } from './routes/competitorAnalysis.js';
@@ -11,13 +20,6 @@ import { generateLaunchDocRoute } from './routes/launchDocument.js';
 import { queryRoute } from './routes/query.js';
 import { exportRoute } from './routes/export.js';
 import { getGenerationProgressRoute, getLatestGenerationRoute } from './routes/progress.js';
-
-// Get the directory name in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Load .env from project root
-dotenv.config({ path: join(__dirname, '..', '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;

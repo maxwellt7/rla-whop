@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../store/useProjectStore';
+import { queryLaunchDoc } from '../services/api';
 import { 
   LayoutDashboard, 
   Target, 
@@ -10,34 +11,49 @@ import {
   FileText,
   MessageSquare,
   Send,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const currentProject = useProjectStore((state) => state.currentProject);
   const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
 
   const handleQuery = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    if (!query.trim() || !currentProject?.id) return;
 
-    // Add user message
-    setChatHistory([...chatHistory, { role: 'user', content: query }]);
+    const userQuestion = query;
+    setQuery('');
     
-    // TODO: Implement actual query to AI
-    setTimeout(() => {
+    // Add user message
+    setChatHistory(prev => [...prev, { role: 'user', content: userQuestion }]);
+    setLoading(true);
+    
+    try {
+      const answer = await queryLaunchDoc(currentProject.id, userQuestion);
       setChatHistory(prev => [
         ...prev,
         {
           role: 'assistant',
-          content: 'This is a placeholder response. The query interface will be connected to the launch document data to answer questions like "Generate ad copy" or "Improve my landing page".'
+          content: answer
         }
       ]);
-    }, 1000);
-
-    setQuery('');
+    } catch (error) {
+      console.error('Query error:', error);
+      setChatHistory(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: '❌ Sorry, I encountered an error processing your question. Please try again.'
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const quickActions = [
@@ -208,14 +224,24 @@ export default function Dashboard() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="e.g., Generate 10 Facebook ad headlines"
               className="input flex-1"
+              disabled={loading}
             />
             <button
               type="submit"
-              disabled={!query.trim()}
+              disabled={!query.trim() || loading}
               className="btn btn-primary flex items-center space-x-2"
             >
-              <Send className="w-4 h-4" />
-              <span>Ask</span>
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Thinking...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>Ask</span>
+                </>
+              )}
             </button>
           </form>
         </div>

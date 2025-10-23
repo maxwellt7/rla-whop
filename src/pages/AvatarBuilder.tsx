@@ -95,8 +95,14 @@ export default function AvatarBuilder() {
       if (analysis.millionDollarMessage) {
         setMillionDollarMessage(analysis.millionDollarMessage);
       }
+      if (analysis.empathyMap) {
+        setEmpathyMap(analysis.empathyMap);
+      }
+      if (analysis.goalsGrid) {
+        setGoalsGrid(analysis.goalsGrid);
+      }
       
-      alert('✅ Avatar analysis complete! Check the updated "Primary Currency" and "Million Dollar Message" fields above.');
+      alert('✅ Avatar analysis complete! The Empathy Map and Goals Grid have been populated with AI-generated insights. Check all fields including "Primary Currency" and "Million Dollar Message".');
     } catch (error) {
       console.error('Analysis error:', error);
       alert('Failed to analyze avatar. Please try again.');

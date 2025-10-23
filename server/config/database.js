@@ -71,6 +71,22 @@ export function initializeDatabase() {
 
 // Helper functions for Launch Document Generation
 export const launchDocDB = {
+  // Ensure project exists in database (for frontend-created projects)
+  ensureProjectExists: (projectId, projectName) => {
+    const checkStmt = db.prepare('SELECT id FROM projects WHERE id = ?');
+    const existing = checkStmt.get(projectId);
+    
+    if (!existing) {
+      const insertStmt = db.prepare(`
+        INSERT OR IGNORE INTO projects (id, name, created_at, updated_at, current_step)
+        VALUES (?, ?, ?, ?, 1)
+      `);
+      const now = new Date().toISOString();
+      insertStmt.run(projectId, projectName, now, now);
+      console.log(`✅ Created project in database: ${projectId}`);
+    }
+  },
+
   // Create a new generation job
   createGeneration: (projectId) => {
     const id = `gen_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;

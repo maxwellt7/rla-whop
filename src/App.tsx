@@ -5,6 +5,7 @@ import AvatarBuilder from './pages/AvatarBuilder';
 import CompetitorIntelligence from './pages/CompetitorIntelligence';
 import Manifold from './pages/Manifold';
 import LaunchDocument from './pages/LaunchDocument';
+import ProjectSummary from './pages/ProjectSummary';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 import { useProjectStore } from './store/useProjectStore';
@@ -31,6 +32,7 @@ function App() {
           <Route path="competitors" element={<CompetitorIntelligence />} />
           <Route path="manifold" element={<Manifold />} />
           <Route path="launch-doc" element={<LaunchDocument />} />
+          <Route path="summary" element={<ProjectSummary />} />
           <Route path="dashboard" element={<Dashboard />} />
         </Route>
       </Routes>

@@ -139,6 +139,9 @@ export async function generateLaunchDocRoute(req, res) {
 
     console.log('📄 Starting Launch Document Generation...');
 
+    // Ensure project exists in database (create if needed)
+    launchDocDB.ensureProjectExists(projectId, offer.targetMarket || 'Unnamed Project');
+
     let generationId;
     let completedSections = new Set();
 

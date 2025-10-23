@@ -1,12 +1,25 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-if (!process.env.ANTHROPIC_API_KEY) {
-  console.warn('⚠️  ANTHROPIC_API_KEY not set. AI features will not work.');
+// Lazy initialization to ensure env vars are loaded
+let anthropicInstance = null;
+
+function getAnthropic() {
+  if (!anthropicInstance) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY not set. AI features will not work.');
+    }
+    anthropicInstance = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+  }
+  return anthropicInstance;
 }
 
-export const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+export const anthropic = {
+  get messages() {
+    return getAnthropic().messages;
+  }
+};
 
 export const CLAUDE_MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514';
 export const CLAUDE_TEMPERATURE = parseFloat(process.env.CLAUDE_TEMPERATURE || '0.7');

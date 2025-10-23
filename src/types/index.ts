@@ -110,6 +110,8 @@ export interface EmpathyMap {
   thinking: string[];
   feeling: string[];
   doing: string[];
+  pains?: string[];
+  gains?: string[];
 }
 
 export interface GoalsGrid {

@@ -14,6 +14,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 120000, // 2 minutes - Claude responses can take 20-60 seconds
 });
 
 // Add request interceptor for debugging
@@ -57,19 +58,25 @@ api.interceptors.response.use(
 
 // Offer Analysis
 export async function analyzeOffer(offerData: OfferData): Promise<OfferAnalysis> {
-  const response = await api.post('/analyze/offer', offerData);
+  const response = await api.post('/analyze/offer', offerData, {
+    timeout: 120000, // 2 minutes for Claude analysis
+  });
   return response.data.data;
 }
 
 // Avatar Analysis
 export async function analyzeAvatar(avatarData: AvatarData): Promise<Partial<AvatarData>> {
-  const response = await api.post('/analyze/avatar', avatarData);
+  const response = await api.post('/analyze/avatar', avatarData, {
+    timeout: 120000, // 2 minutes for Claude analysis
+  });
   return response.data.data;
 }
 
 // Competitor Analysis
 export async function analyzeCompetitors(data: { industry: string; competitorUrls: string[] }): Promise<CompetitorData> {
-  const response = await api.post('/analyze/competitors', data);
+  const response = await api.post('/analyze/competitors', data, {
+    timeout: 180000, // 3 minutes for competitor analysis
+  });
   return response.data.data;
 }
 
@@ -152,7 +159,35 @@ export async function exportDocument(projectId: string, format: 'pdf' | 'docx' |
 
 // Query Interface
 export async function queryLaunchDoc(projectId: string, question: string): Promise<string> {
-  const response = await api.post('/query', { projectId, question });
+  // Get project data from store
+  const storedData = localStorage.getItem('rapid-launch-storage');
+  let projectData = null;
+  
+  if (storedData) {
+    try {
+      const parsed = JSON.parse(storedData);
+      const currentProject = parsed.state?.currentProject;
+      if (currentProject) {
+        projectData = {
+          offer: currentProject.offer,
+          avatar: currentProject.avatar,
+          competitors: currentProject.competitors,
+          manifold: currentProject.manifold,
+          launchDoc: currentProject.launchDoc,
+        };
+      }
+    } catch (error) {
+      console.error('Error parsing project data:', error);
+    }
+  }
+  
+  const response = await api.post('/query', { 
+    projectId, 
+    question,
+    projectData 
+  }, {
+    timeout: 60000, // 1 minute for query responses
+  });
   return response.data.data.answer;
 }
 
