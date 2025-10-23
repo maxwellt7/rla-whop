@@ -5,10 +5,6 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://rapid-launch-agent-production.up.railway.app/api/:path*"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
@@ -25,7 +21,7 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "/api"
+    "VITE_API_URL": "https://rapid-launch-agent-production.up.railway.app/api"
   }
 }
 
