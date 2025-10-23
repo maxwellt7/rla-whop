@@ -127,6 +127,7 @@ export interface CompetitorData {
   competitors: Competitor[];
   marketIntelligence: MarketIntelligence;
   positioningAngles: string[];
+  marketGaps?: string[];
   mvpFeatures: string[];
   distributionStrategy: string;
 }

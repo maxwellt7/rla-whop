@@ -311,7 +311,7 @@ export default function AvatarBuilder() {
               {Object.keys(empathyMap).map((key) => (
                 <div key={key}>
                   <label className="label capitalize">What are they {key}?</label>
-                  {empathyMap[key as keyof EmpathyMap].map((item: string, index: number) => (
+                  {empathyMap[key as keyof EmpathyMap]?.map((item: string, index: number) => (
                     <input
                       key={index}
                       type="text"

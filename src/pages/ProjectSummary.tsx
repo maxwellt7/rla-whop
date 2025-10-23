@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useProjectStore } from '../store/useProjectStore';
 import { Download, FileText, Loader2, Copy, Check, Package } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
 
 export default function ProjectSummary() {
   const { currentProject } = useProjectStore();
@@ -167,9 +166,9 @@ Always prioritize the avatar's language patterns, emotional triggers, and the co
         kb += `\n`;
       }
 
-      if (project.competitors.marketGaps?.length > 0) {
+      if (project.competitors.marketGaps && project.competitors.marketGaps.length > 0) {
         kb += `### Market Gaps & Opportunities\n`;
-        project.competitors.marketGaps.forEach((gap, i) => {
+        project.competitors.marketGaps.forEach((gap: string, i: number) => {
           kb += `${i + 1}. ${gap}\n`;
         });
         kb += `\n`;
@@ -177,7 +176,7 @@ Always prioritize the avatar's language patterns, emotional triggers, and the co
     }
 
     // Launch Document Sections
-    if (project.launchDoc?.sections?.length > 0) {
+    if (project.launchDoc?.sections && project.launchDoc.sections.length > 0) {
       kb += `## LAUNCH DOCUMENT (38 Sections)\n\n`;
       kb += `*Complete marketing brief using Todd Brown's E5 VSL methodology*\n\n`;
       
@@ -322,7 +321,7 @@ Always prioritize the avatar's language patterns, emotional triggers, and the co
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600 mb-1">Launch Doc (38 Sections)</div>
           <div className="text-2xl font-bold text-green-600">
-            {currentProject.launchDoc?.sections?.length > 0 ? '✓' : '○'}
+            {currentProject.launchDoc?.sections && currentProject.launchDoc.sections.length > 0 ? '✓' : '○'}
           </div>
         </div>
       </div>
@@ -460,7 +459,7 @@ Always prioritize the avatar's language patterns, emotional triggers, and the co
 
           <button
             onClick={exportLaunchDocument}
-            disabled={!currentProject.launchDoc?.sections?.length}
+            disabled={!currentProject.launchDoc?.sections || currentProject.launchDoc.sections.length === 0}
             className="flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="flex items-center gap-3">
