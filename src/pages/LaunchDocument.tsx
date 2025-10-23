@@ -127,10 +127,16 @@ export default function LaunchDocument() {
       });
 
       // Backend now returns immediately with generation ID
-      setGenerationId(response.generationId);
-      setProgress({ completed: 0, total: 38 });
-
-      console.log('✅ Generation started:', response.generationId);
+      if (response.generationId) {
+        setGenerationId(response.generationId);
+        setProgress({ completed: 0, total: 38 });
+        console.log('✅ Generation started:', response.generationId);
+      } else {
+        console.error('No generation ID returned');
+        setLoading(false);
+        setGenerationStatus('failed');
+        alert('❌ Failed to start generation: No generation ID returned');
+      }
     } catch (error) {
       console.error('Generation error:', error);
       setLoading(false);
@@ -234,7 +240,7 @@ export default function LaunchDocument() {
           </div>
 
           <button
-            onClick={handleGenerate}
+            onClick={() => handleGenerate(false)}
             disabled={loading}
             className="btn btn-primary text-lg px-8 py-3 flex items-center space-x-2 mx-auto"
           >
@@ -339,7 +345,7 @@ export default function LaunchDocument() {
 
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <button
-                  onClick={handleGenerate}
+                  onClick={() => handleGenerate(false)}
                   disabled={loading}
                   className="btn btn-outline w-full text-sm"
                 >

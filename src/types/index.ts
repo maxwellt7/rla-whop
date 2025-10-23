@@ -166,8 +166,11 @@ export interface ManifoldData {
 
 // Launch Document Types
 export interface LaunchDocData {
+  generationId?: string;
   sections: LaunchDocSection[];
   generatedAt: string;
+  status?: 'pending' | 'in_progress' | 'completed' | 'failed';
+  message?: string;
 }
 
 export interface LaunchDocSection {
