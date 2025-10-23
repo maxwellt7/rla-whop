@@ -19,9 +19,6 @@
         }
       ]
     }
-  ],
-  "env": {
-    "VITE_API_URL": "https://rapid-launch-agent-production.up.railway.app/api"
-  }
+  ]
 }
 
