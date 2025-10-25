@@ -1,7 +1,8 @@
 {
-  "name": "rapid-launch-agent",
-  "private": true,
+  "name": "rapid-launch-agent-whop",
   "version": "1.0.0",
+  "description": "AI-powered marketing automation system for Whop platform",
+  "main": "server/index.js",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,12 +11,15 @@
     "server": "node server/index.js",
     "start": "node server/index.js",
     "type-check": "tsc --noEmit",
-    "docker:build": "docker build -t rapid-launch-agent .",
-    "docker:run": "docker run -p 5000:5000 --env-file .env rapid-launch-agent",
-    "validate": "node -c server/index.js && npm run type-check"
+    "docker:build": "docker build -t rapid-launch-agent-whop .",
+    "docker:run": "docker run -p 5000:5000 --env-file .env rapid-launch-agent-whop",
+    "validate": "node -c server/index.js && npm run type-check",
+    "whop:build": "npm run build && npm run server:build",
+    "whop:deploy": "whop apps deploy"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.0",
+    "@whop/sdk": "^1.0.0",
     "axios": "^1.6.2",
     "better-sqlite3": "^12.4.1",
     "clsx": "^2.0.0",
@@ -41,5 +45,62 @@
     "tailwindcss": "^3.3.6",
     "typescript": "^5.2.2",
     "vite": "^5.0.8"
+  },
+  "keywords": [
+    "whop",
+    "ai",
+    "marketing",
+    "automation",
+    "launch",
+    "business"
+  ],
+  "author": "Rapid Launch Agent Team",
+  "license": "MIT",
+  "whop": {
+    "appId": "app_RsMn7IKRAMfuhN",
+    "name": "Rapid Launch Agent",
+    "description": "Turn your idea into a business in less than 72 hours using AI-powered marketing automation",
+    "version": "1.0.0",
+    "category": "business",
+    "tags": ["ai", "marketing", "automation", "launch", "business"],
+    "pricing": {
+      "free": {
+        "name": "Free Tier",
+        "price": 0,
+        "features": [
+          "1 project per month",
+          "Basic offer analysis",
+          "Simple avatar builder",
+          "Limited competitor analysis"
+        ],
+        "rateLimit": 5
+      },
+      "pro": {
+        "name": "Pro Tier",
+        "price": 29,
+        "features": [
+          "5 projects per month",
+          "Advanced AI analysis",
+          "Full avatar manifold",
+          "Comprehensive competitor intelligence",
+          "Launch document generation",
+          "Export capabilities"
+        ],
+        "rateLimit": 50
+      },
+      "enterprise": {
+        "name": "Enterprise Tier",
+        "price": 99,
+        "features": [
+          "Unlimited projects",
+          "Priority AI processing",
+          "Advanced analytics",
+          "Custom integrations",
+          "White-label options",
+          "Dedicated support"
+        ],
+        "rateLimit": 200
+      }
+    }
   }
 }

@@ -1,0 +1,96 @@
+{
+  "app": {
+    "id": "app_RsMn7IKRAMfuhN",
+    "name": "Rapid Launch Agent",
+    "description": "Turn your idea into a business in less than 72 hours using AI-powered marketing automation",
+    "version": "1.0.0",
+    "category": "business",
+    "tags": ["ai", "marketing", "automation", "launch", "business"],
+    "icon": "https://your-domain.com/icon.png",
+    "banner": "https://your-domain.com/banner.png",
+    "screenshots": [
+      "https://your-domain.com/screenshot1.png",
+      "https://your-domain.com/screenshot2.png",
+      "https://your-domain.com/screenshot3.png"
+    ]
+  },
+  "auth": {
+    "type": "oauth2",
+    "scopes": ["read:users", "write:users", "read:payments", "write:payments"],
+    "redirectUri": "https://your-app-domain.com/auth/callback"
+  },
+  "pricing": {
+    "model": "subscription",
+    "plans": [
+      {
+        "id": "free",
+        "name": "Free Tier",
+        "price": 0,
+        "currency": "USD",
+        "interval": "month",
+        "features": [
+          "1 project per month",
+          "Basic offer analysis",
+          "Simple avatar builder",
+          "Limited competitor analysis"
+        ],
+        "rateLimit": 5
+      },
+      {
+        "id": "pro",
+        "name": "Pro Tier",
+        "price": 29,
+        "currency": "USD",
+        "interval": "month",
+        "features": [
+          "5 projects per month",
+          "Advanced AI analysis",
+          "Full avatar manifold",
+          "Comprehensive competitor intelligence",
+          "Launch document generation",
+          "Export capabilities"
+        ],
+        "rateLimit": 50
+      },
+      {
+        "id": "enterprise",
+        "name": "Enterprise Tier",
+        "price": 99,
+        "currency": "USD",
+        "interval": "month",
+        "features": [
+          "Unlimited projects",
+          "Priority AI processing",
+          "Advanced analytics",
+          "Custom integrations",
+          "White-label options",
+          "Dedicated support"
+        ],
+        "rateLimit": 200
+      }
+    ]
+  },
+  "deployment": {
+    "type": "docker",
+    "dockerfile": "Dockerfile",
+    "port": 5000,
+    "environment": {
+      "NODE_ENV": "production",
+      "PORT": "5000"
+    }
+  },
+  "webhooks": [
+    {
+      "event": "subscription.created",
+      "url": "https://your-app-domain.com/webhooks/subscription-created"
+    },
+    {
+      "event": "subscription.updated",
+      "url": "https://your-app-domain.com/webhooks/subscription-updated"
+    },
+    {
+      "event": "subscription.cancelled",
+      "url": "https://your-app-domain.com/webhooks/subscription-cancelled"
+    }
+  ]
+}

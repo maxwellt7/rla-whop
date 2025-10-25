@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useProjectStore } from '../store/useProjectStore';
+import { useAuth } from './WhopAuthProvider';
 import { 
   Rocket, 
   Target, 
@@ -8,7 +9,11 @@ import {
   Brain, 
   FileText,
   LayoutDashboard,
-  ChevronRight
+  ChevronRight,
+  User,
+  Crown,
+  Zap,
+  LogOut
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -25,6 +30,29 @@ export default function Layout() {
   const location = useLocation();
   const currentProject = useProjectStore((state) => state.currentProject);
   const currentStep = currentProject?.currentStep || 1;
+  const { logout, subscriptionTier, rateLimit } = useAuth();
+
+  const getTierIcon = (tier: string) => {
+    switch (tier) {
+      case 'enterprise':
+        return <Crown className="w-4 h-4 text-purple-500" />;
+      case 'pro':
+        return <Zap className="w-4 h-4 text-blue-500" />;
+      default:
+        return <User className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  const getTierColor = (tier: string) => {
+    switch (tier) {
+      case 'enterprise':
+        return 'text-purple-600 bg-purple-50';
+      case 'pro':
+        return 'text-blue-600 bg-blue-50';
+      default:
+        return 'text-gray-600 bg-gray-50';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -39,13 +67,37 @@ export default function Layout() {
                 <p className="text-sm text-gray-500">{currentProject?.name}</p>
               </div>
             </div>
-            <button
-              onClick={() => navigate('/project/dashboard')}
-              className="btn btn-outline flex items-center space-x-2"
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Dashboard</span>
-            </button>
+            
+            <div className="flex items-center space-x-4">
+              {/* User Info */}
+              <div className="flex items-center space-x-3">
+                <div className={clsx('flex items-center space-x-2 px-3 py-1 rounded-full', getTierColor(subscriptionTier))}>
+                  {getTierIcon(subscriptionTier)}
+                  <span className="text-sm font-medium capitalize">{subscriptionTier}</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  {rateLimit} uses remaining
+                </div>
+              </div>
+
+              {/* Dashboard Button */}
+              <button
+                onClick={() => navigate('/project/dashboard')}
+                className="btn btn-outline flex items-center space-x-2"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>Dashboard</span>
+              </button>
+
+              {/* Logout Button */}
+              <button
+                onClick={logout}
+                className="btn btn-outline flex items-center space-x-2 text-red-600 hover:text-red-700"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
