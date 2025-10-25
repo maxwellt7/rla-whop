@@ -34,7 +34,7 @@ export default function Landing() {
             Rapid Launch Agent
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Transform your marketing strategy with AI-powered insights. Build comprehensive launch documents using Todd Brown's E5 VSL methodology.
+          You’re sitting a $1m+ idea. The Rapid Launch Agent turns your million dollar idea into a million dollar business in 72 hours.
           </p>
         </div>
 
