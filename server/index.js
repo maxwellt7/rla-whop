@@ -56,7 +56,13 @@ app.post('/api/export/:format', authenticateWhopUser, rateLimitMiddleware, track
 
 // Whop-specific routes
 app.get('/api/auth/whop', (req, res) => {
-  const authUrl = `https://whop.com/oauth/authorize?client_id=${process.env.WHOP_CLIENT_ID}&redirect_uri=${process.env.WHOP_REDIRECT_URI}&scope=${process.env.WHOP_SCOPE}&response_type=code`;
+  const clientId = process.env.WHOP_CLIENT_ID || 'app_RsMn7IKRAMfuhN';
+  const redirectUri = process.env.WHOP_REDIRECT_URI || 'https://whop.rapidlaunchagent.com/auth/callback';
+  const scope = process.env.WHOP_SCOPE || 'read:users,write:users,read:payments,write:payments';
+  
+  const authUrl = `https://whop.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
+  
+  console.log('Generating auth URL with:', { clientId, redirectUri, scope });
   res.json({ authUrl });
 });
 
