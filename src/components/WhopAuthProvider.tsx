@@ -46,9 +46,26 @@ export const WhopAuthProvider: React.FC<WhopAuthProviderProps> = ({ children }) 
   const login = async () => {
     try {
       const authUrl = await whopAuth.getAuthUrl();
-      window.location.href = authUrl;
+      console.log('Auth URL received:', authUrl);
+      
+      if (!authUrl || authUrl === 'undefined') {
+        console.error('Invalid auth URL received');
+        // Fallback to direct Whop OAuth URL
+        const clientId = 'app_RsMn7IKRAMfuhN';
+        const redirectUri = window.location.origin + '/auth/callback';
+        const fallbackUrl = `https://whop.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=read:users,write:users,read:payments,write:payments&response_type=code`;
+        console.log('Using fallback URL:', fallbackUrl);
+        window.location.href = fallbackUrl;
+      } else {
+        window.location.href = authUrl;
+      }
     } catch (error) {
       console.error('Failed to initiate login:', error);
+      // Fallback to direct Whop OAuth URL
+      const clientId = 'app_RsMn7IKRAMfuhN';
+      const redirectUri = window.location.origin + '/auth/callback';
+      const fallbackUrl = `https://whop.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=read:users,write:users,read:payments,write:payments&response_type=code`;
+      window.location.href = fallbackUrl;
     }
   };
 
