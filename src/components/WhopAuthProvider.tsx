@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { whopAuth } from '../services/whopAuth';
 
+// Extend Window interface for Whop SDK
+declare global {
+  interface Window {
+    whop?: any;
+  }
+}
+
 interface WhopAuthProviderProps {
   children: React.ReactNode;
 }
@@ -44,28 +51,26 @@ export const WhopAuthProvider: React.FC<WhopAuthProviderProps> = ({ children }) 
   };
 
   const login = async () => {
+    // For Whop apps, users authenticate through Whop's app system
+    // The app will be opened in Whop's iframe/container
+    // Users will be automatically authenticated when they access the app through Whop
+    
+    // Redirect to Whop app page with app ID
+    const appUrl = `https://whop.com/app/${process.env.VITE_WHOP_APP_ID || 'app_RsMn7IKRAMfuhN'}`;
+    console.log('Redirecting to Whop app:', appUrl);
+    
+    // Try to open in Whop
     try {
-      const authUrl = await whopAuth.getAuthUrl();
-      console.log('Auth URL received:', authUrl);
-      
-      if (!authUrl || authUrl === 'undefined') {
-        console.error('Invalid auth URL received');
-        // Fallback to direct Whop OAuth URL
-        const clientId = 'app_RsMn7IKRAMfuhN';
-        const redirectUri = window.location.origin + '/auth/callback';
-        const fallbackUrl = `https://whop.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=read:users,write:users,read:payments,write:payments&response_type=code`;
-        console.log('Using fallback URL:', fallbackUrl);
-        window.location.href = fallbackUrl;
+      // Check if we're in a Whop iframe
+      if (window.whop) {
+        // We're already in Whop, authentication should be automatic
+        console.log('Already in Whop environment');
       } else {
-        window.location.href = authUrl;
+        // Redirect to Whop app page
+        window.location.href = appUrl;
       }
     } catch (error) {
-      console.error('Failed to initiate login:', error);
-      // Fallback to direct Whop OAuth URL
-      const clientId = 'app_RsMn7IKRAMfuhN';
-      const redirectUri = window.location.origin + '/auth/callback';
-      const fallbackUrl = `https://whop.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=read:users,write:users,read:payments,write:payments&response_type=code`;
-      window.location.href = fallbackUrl;
+      console.error('Failed to redirect to Whop:', error);
     }
   };
 
