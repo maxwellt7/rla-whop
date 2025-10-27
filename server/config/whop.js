@@ -1,11 +1,10 @@
 import { Whop } from '@whop/sdk';
 
 // Initialize Whop SDK
+// Note: The Whop SDK requires an API key for server-side use
+// For OAuth flows, the API key should be obtained from the Whop developer dashboard
 export const whop = new Whop({
-  clientId: process.env.WHOP_CLIENT_ID,
-  clientSecret: process.env.WHOP_CLIENT_SECRET,
-  redirectUri: process.env.WHOP_REDIRECT_URI,
-  scope: process.env.WHOP_SCOPE || 'read:users,write:users,read:payments,write:payments',
+  apiKey: process.env.WHOP_API_KEY || process.env.WHOP_CLIENT_SECRET,
 });
 
 // Whop authentication middleware
