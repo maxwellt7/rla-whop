@@ -39,6 +39,12 @@ RUN npm ci --only=production && npm cache clean --force
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server ./server
 
+# Ensure all server files are copied
+COPY --from=builder /app/server/config ./server/config
+COPY --from=builder /app/server/middleware ./server/middleware
+COPY --from=builder /app/server/routes ./server/routes
+COPY --from=builder /app/server/utils ./server/utils
+
 # Copy configuration files
 COPY whop.config.json ./
 COPY railway.toml ./
