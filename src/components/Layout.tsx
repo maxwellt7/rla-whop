@@ -12,8 +12,7 @@ import {
   ChevronRight,
   User,
   Crown,
-  Zap,
-  LogOut
+  Zap
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -30,7 +29,7 @@ export default function Layout() {
   const location = useLocation();
   const currentProject = useProjectStore((state) => state.currentProject);
   const currentStep = currentProject?.currentStep || 1;
-  const { logout, subscriptionTier, rateLimit } = useAuth();
+  const { subscriptionTier, rateLimit } = useAuth();
 
   const getTierIcon = (tier: string) => {
     switch (tier) {
@@ -55,16 +54,16 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Top Navigation */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
-              <Rocket className="w-8 h-8 text-primary-600" />
+              <Rocket className="w-8 h-8 text-primary-600 dark:text-primary-400" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Rapid Launch Agent</h1>
-                <p className="text-sm text-gray-500">{currentProject?.name}</p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Rapid Launch Agent</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{currentProject?.name}</p>
               </div>
             </div>
             
@@ -88,22 +87,13 @@ export default function Layout() {
                 <LayoutDashboard className="w-4 h-4" />
                 <span>Dashboard</span>
               </button>
-
-              {/* Logout Button */}
-              <button
-                onClick={logout}
-                className="btn btn-outline flex items-center space-x-2 text-red-600 hover:text-red-700"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
             </div>
           </div>
         </div>
       </header>
 
       {/* Progress Steps */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <nav aria-label="Progress">
             <ol className="flex items-center justify-between">

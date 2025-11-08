@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
-import Login from './pages/Login';
 import OfferBuilder from './pages/OfferBuilder';
 import AvatarBuilder from './pages/AvatarBuilder';
 import CompetitorIntelligence from './pages/CompetitorIntelligence';
@@ -9,24 +8,11 @@ import LaunchDocument from './pages/LaunchDocument';
 import ProjectSummary from './pages/ProjectSummary';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
-import { WhopAuthProvider, useAuth } from './components/WhopAuthProvider';
+import { WhopAuthProvider } from './components/WhopAuthProvider';
 import { useProjectStore } from './store/useProjectStore';
 
 function AppContent() {
   const currentProject = useProjectStore((state) => state.currentProject);
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Login />;
-  }
 
   return (
     <Router>

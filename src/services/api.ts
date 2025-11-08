@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { OfferData, OfferAnalysis, AvatarData, CompetitorData, ManifoldData, LaunchDocData } from '../types';
+import { whopAuth } from './whopAuth';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -17,14 +18,21 @@ const api = axios.create({
   timeout: 120000, // 2 minutes - Claude responses can take 20-60 seconds
 });
 
-// Add request interceptor for debugging
+// Add request interceptor for authentication and debugging
 api.interceptors.request.use(
   (config) => {
+    // Add Whop authentication token
+    const token = whopAuth.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
     console.log('📤 API Request:', {
       method: config.method?.toUpperCase(),
       url: config.url,
       baseURL: config.baseURL,
       fullURL: `${config.baseURL}${config.url}`,
+      authenticated: !!token,
     });
     return config;
   },
@@ -34,7 +42,7 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor for debugging
+// Add response interceptor for debugging and error handling
 api.interceptors.response.use(
   (response) => {
     console.log('✅ API Response:', {
@@ -52,6 +60,14 @@ api.interceptors.response.use(
       url: error.config?.url,
       data: error.response?.data,
     });
+    
+    // Handle authentication errors
+    if (error.response?.status === 401) {
+      whopAuth.clearAuth();
+      // Whop handles auth natively, so just clear local state
+      console.warn('Authentication failed - token cleared');
+    }
+    
     return Promise.reject(error);
   }
 );

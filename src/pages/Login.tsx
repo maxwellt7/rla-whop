@@ -110,7 +110,7 @@ export default function Login() {
         {/* Footer */}
         <div className="text-center mt-16">
           <p className="text-gray-500">
-            Powered by Whop • Built with AI
+            Built on Whop • Powered by AI
           </p>
         </div>
       </div>

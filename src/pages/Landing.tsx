@@ -23,59 +23,59 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center mb-6">
-            <Rocket className="w-16 h-16 text-primary-600" />
+            <Rocket className="w-16 h-16 text-primary-600 dark:text-primary-400" />
           </div>
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Rapid Launch Agent
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          You’re sitting a $1m+ idea. The Rapid Launch Agent turns your million dollar idea into a million dollar business in 72 hours.
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          You're sitting a $1m+ idea. The Rapid Launch Agent turns your million dollar idea into a million dollar business in 72 hours.
           </p>
         </div>
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
           <div className="card text-center">
-            <Target className="w-12 h-12 text-primary-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Offer Analysis</h3>
-            <p className="text-gray-600 text-sm">
+            <Target className="w-12 h-12 text-primary-600 dark:text-primary-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2 dark:text-gray-100">Offer Analysis</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               Deep analysis using the Irresistible Offer Equation with 10 strategic improvements
             </p>
           </div>
           <div className="card text-center">
-            <Users className="w-12 h-12 text-primary-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Avatar Builder</h3>
-            <p className="text-gray-600 text-sm">
+            <Users className="w-12 h-12 text-primary-600 dark:text-primary-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2 dark:text-gray-100">Avatar Builder</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               WEB analysis (Wants, Emotions, Beliefs) with empathy mapping and psychology profiling
             </p>
           </div>
           <div className="card text-center">
-            <TrendingUp className="w-12 h-12 text-primary-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Competitor Intel</h3>
-            <p className="text-gray-600 text-sm">
+            <TrendingUp className="w-12 h-12 text-primary-600 dark:text-primary-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2 dark:text-gray-100">Competitor Intel</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               Forensic market analysis with positioning angles and distribution strategies
             </p>
           </div>
           <div className="card text-center">
-            <Brain className="w-12 h-12 text-primary-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">AI Manifold</h3>
-            <p className="text-gray-600 text-sm">
+            <Brain className="w-12 h-12 text-primary-600 dark:text-primary-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2 dark:text-gray-100">AI Manifold</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               14-node workflow generating deep psychological insights and copywriting frameworks
             </p>
           </div>
           <div className="card text-center">
-            <FileText className="w-12 h-12 text-primary-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Launch Document</h3>
-            <p className="text-gray-600 text-sm">
+            <FileText className="w-12 h-12 text-primary-600 dark:text-primary-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2 dark:text-gray-100">Launch Document</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               Comprehensive 38+ section marketing brief ready for team implementation
             </p>
           </div>
-          <div className="card text-center bg-gradient-to-br from-primary-600 to-primary-700 text-white">
+          <div className="card text-center bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-700 dark:to-primary-800 text-white">
             <Rocket className="w-12 h-12 mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Complete System</h3>
             <p className="text-sm">
@@ -97,16 +97,16 @@ export default function Landing() {
                   <button
                     key={project.id}
                     onClick={() => handleLoadProject(project.id)}
-                    className="w-full p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-left"
+                    className="w-full p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors text-left"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-semibold text-gray-900">{project.name}</h3>
-                        <p className="text-sm text-gray-500">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{project.name}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           Step {project.currentStep} of 5 • Updated {new Date(project.updatedAt).toLocaleDateString()}
                         </p>
                       </div>
-                      <div className="text-primary-600">→</div>
+                      <div className="text-primary-600 dark:text-primary-400">→</div>
                     </div>
                   </button>
                 ))}
