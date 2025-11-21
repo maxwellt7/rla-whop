@@ -10,6 +10,12 @@ import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 import { WhopAuthProvider } from './components/WhopAuthProvider';
 import { useProjectStore } from './store/useProjectStore';
+import { useWhopTheme } from './hooks/useWhopTheme';
+
+function ThemeSynchronizer() {
+  useWhopTheme();
+  return null;
+}
 
 function AppContent() {
   const currentProject = useProjectStore((state) => state.currentProject);
@@ -44,6 +50,7 @@ function AppContent() {
 function App() {
   return (
     <WhopAuthProvider>
+      <ThemeSynchronizer />
       <AppContent />
     </WhopAuthProvider>
   );

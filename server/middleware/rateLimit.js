@@ -4,7 +4,7 @@ import { getUserSubscriptionTier, checkRateLimit } from '../config/whop.js';
 export const rateLimitMiddleware = async (req, res, next) => {
   try {
     const userId = req.userId;
-    const subscriptionTier = await getUserSubscriptionTier(userId, req.headers.authorization?.substring(7));
+    const subscriptionTier = await getUserSubscriptionTier(userId, req.whopToken || req.headers.authorization?.substring(7), req);
     
     const rateLimitCheck = await checkRateLimit(userId, subscriptionTier);
     
@@ -55,7 +55,7 @@ export const validateSubscriptionTier = (requiredTier) => {
   return async (req, res, next) => {
     try {
       const userId = req.userId;
-      const subscriptionTier = await getUserSubscriptionTier(userId, req.headers.authorization?.substring(7));
+      const subscriptionTier = await getUserSubscriptionTier(userId, req.whopToken || req.headers.authorization?.substring(7), req);
       
       const tierLevels = {
         'free': 1,

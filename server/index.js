@@ -68,7 +68,7 @@ app.get('/api/auth/whop', (req, res) => {
 
 app.get('/api/user/profile', authenticateWhopUser, async (req, res) => {
   try {
-    const subscriptionTier = await getUserSubscriptionTier(req.userId, req.headers.authorization?.substring(7));
+    const subscriptionTier = await getUserSubscriptionTier(req.userId, req.whopToken || req.headers.authorization?.substring(7), req);
     res.json({
       success: true,
       data: {

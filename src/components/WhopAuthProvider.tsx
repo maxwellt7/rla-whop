@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { whopAuth } from '../services/whopAuth';
 
-// Extend Window interface for Whop SDK
-declare global {
-  interface Window {
-    whop?: any;
-  }
-}
-
 interface WhopAuthProviderProps {
   children: React.ReactNode;
 }
@@ -31,34 +24,43 @@ export const WhopAuthProvider: React.FC<WhopAuthProviderProps> = ({ children }) 
   const [rateLimit, setRateLimit] = useState(5);
 
   useEffect(() => {
+    whopAuth.syncTokenFromEnvironment();
     initializeAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const initializeAuth = async () => {
     try {
-      // Check if we have a token, if not, auto-authenticate for Whop
-      if (!whopAuth.isAuthenticated()) {
-        // Auto-authenticate since Whop handles auth natively
+      let token = whopAuth.getToken();
+
+      if (!token) {
+        token = whopAuth.syncTokenFromEnvironment();
+      }
+
+      if (!token && !isRunningInsideWhop()) {
         whopAuth.setToken('dev-token');
-        setUser({ id: 'whop-user', name: 'Whop User' });
-      } else {
-        // Try to get user profile
+        token = 'dev-token';
+      }
+
+      if (token) {
         try {
           const userProfile = await whopAuth.getUserProfile();
+          const tier = (userProfile.subscriptionTier as 'free' | 'pro' | 'enterprise') || getFallbackTier();
+          const allowedRateLimit = userProfile.rateLimit || getRateLimitForTier(tier);
+
           setUser(userProfile.user);
-          setSubscriptionTier(userProfile.subscriptionTier);
-          setRateLimit(userProfile.rateLimit);
+          setSubscriptionTier(tier);
+          setRateLimit(allowedRateLimit);
         } catch (error) {
           console.error('Failed to get user profile:', error);
-          // Fallback to basic authenticated state
-          setUser({ id: 'whop-user', name: 'Whop User' });
+          setFallbackUser();
         }
+      } else {
+        setFallbackUser();
       }
     } catch (error) {
       console.error('Failed to initialize auth:', error);
-      // Still set user as authenticated since Whop handles auth
-      whopAuth.setToken('dev-token');
-      setUser({ id: 'whop-user', name: 'Whop User' });
+      setFallbackUser();
     } finally {
       setIsLoading(false);
     }
@@ -78,15 +80,18 @@ export const WhopAuthProvider: React.FC<WhopAuthProviderProps> = ({ children }) 
         return;
       }
       
-      // If not in Whop, this is likely being accessed directly
-      // For now, let's just bypass authentication for development
-      // In production, this should only work within Whop's iframe
+      const token = whopAuth.syncTokenFromEnvironment();
+      if (token) {
+        await initializeAuth();
+        return;
+      }
+
       console.warn('Not in Whop environment - allowing access for development');
-      
-      // Set a mock user for development
+      const fallbackTier = getFallbackTier();
       setUser({ id: 'dev-user', name: 'Development User' });
       whopAuth.setToken('dev-token');
-      
+      setSubscriptionTier(fallbackTier);
+      setRateLimit(getRateLimitForTier(fallbackTier));
     } catch (error) {
       console.error('Failed to authenticate:', error);
     }
@@ -95,8 +100,9 @@ export const WhopAuthProvider: React.FC<WhopAuthProviderProps> = ({ children }) 
   const logout = () => {
     whopAuth.clearAuth();
     setUser(null);
-    setSubscriptionTier('free');
-    setRateLimit(5);
+    const fallbackTier = getFallbackTier();
+    setSubscriptionTier(fallbackTier);
+    setRateLimit(getRateLimitForTier(fallbackTier));
   };
 
   const value: AuthContextType = {
@@ -107,6 +113,41 @@ export const WhopAuthProvider: React.FC<WhopAuthProviderProps> = ({ children }) 
     logout,
     subscriptionTier,
     rateLimit,
+  };
+
+  const isRunningInsideWhop = () => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    return !!window.whop || window.self !== window.top;
+  };
+
+  const getFallbackTier = (): 'free' | 'pro' | 'enterprise' => {
+    if (typeof sessionStorage !== 'undefined') {
+      const storedTier = sessionStorage.getItem('whop_subscription_tier');
+      if (storedTier === 'free' || storedTier === 'pro' || storedTier === 'enterprise') {
+        return storedTier;
+      }
+    }
+    return 'pro';
+  };
+
+  const getRateLimitForTier = (tier: 'free' | 'pro' | 'enterprise') => {
+    switch (tier) {
+      case 'enterprise':
+        return 200;
+      case 'pro':
+        return 50;
+      default:
+        return 5;
+    }
+  };
+
+  const setFallbackUser = () => {
+    const fallbackTier = getFallbackTier();
+    setUser({ id: 'whop-user', name: 'Whop User' });
+    setSubscriptionTier(fallbackTier);
+    setRateLimit(getRateLimitForTier(fallbackTier));
   };
 
   return (

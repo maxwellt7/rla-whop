@@ -25,6 +25,7 @@ api.interceptors.request.use(
     const token = whopAuth.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      config.headers['x-whop-user-token'] = token;
     }
     
     console.log('📤 API Request:', {
