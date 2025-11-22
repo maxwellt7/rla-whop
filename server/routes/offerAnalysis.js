@@ -6,6 +6,14 @@ export async function analyzeOfferRoute(req, res) {
   
   try {
     const offerData = req.body;
+    
+    // Validate required fields
+    if (!offerData.targetMarket || !offerData.pressingProblem || !offerData.productDescription) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields. Please provide target market, pressing problem, and product description.',
+      });
+    }
 
     const systemPrompt = `You are an expert in Todd Brown's E5 VSL methodology and the Irresistible Offer Equation. 
 You analyze offers and provide detailed, actionable recommendations to improve conversion rates.
@@ -102,7 +110,33 @@ Provide ONLY the JSON response, no additional text.`;
   } catch (error) {
     console.error('Offer analysis error:', error);
     logAPICall('POST /api/analyze/offer', Date.now() - startTime, false);
-    res.status(500).json(formatError(error));
+    
+    // Provide more specific error messages
+    let statusCode = 500;
+    let errorMessage = error.message || 'An unexpected error occurred';
+    
+    if (error.message?.includes('ANTHROPIC_API_KEY')) {
+      statusCode = 500;
+      errorMessage = 'AI service configuration error. Please contact support.';
+    } else if (error.message?.includes('rate limit') || error.message?.includes('429')) {
+      statusCode = 429;
+      errorMessage = 'AI service rate limit exceeded. Please try again in a moment.';
+    } else if (error.message?.includes('parse') || error.message?.includes('JSON')) {
+      statusCode = 500;
+      errorMessage = 'Failed to process AI response. Please try again.';
+    } else if (error.message?.includes('timeout')) {
+      statusCode = 504;
+      errorMessage = 'Request timeout. The analysis is taking longer than expected. Please try again.';
+    }
+    
+    res.status(statusCode).json({
+      success: false,
+      error: errorMessage,
+      ...(process.env.NODE_ENV === 'development' && { 
+        details: error.message,
+        stack: error.stack 
+      }),
+    });
   }
 }
 

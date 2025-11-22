@@ -78,6 +78,16 @@ export async function analyzeOffer(offerData: OfferData): Promise<OfferAnalysis>
   const response = await api.post('/analyze/offer', offerData, {
     timeout: 120000, // 2 minutes for Claude analysis
   });
+  
+  // Validate response format
+  if (!response.data || response.data.success === false) {
+    throw new Error(response.data?.error || 'Analysis failed');
+  }
+  
+  if (!response.data.data) {
+    throw new Error('Invalid response format from server');
+  }
+  
   return response.data.data;
 }
 

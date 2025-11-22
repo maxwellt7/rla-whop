@@ -42,9 +42,34 @@ export default function OfferBuilder() {
       if (analysis.suggestedAvatar) {
         alert('✅ Offer analyzed! Avatar Builder has been pre-populated with suggested avatar insights. Click "Save & Continue" to review.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Analysis error:', error);
-      alert('Failed to analyze offer. Please try again.');
+      
+      // Extract meaningful error message
+      let errorMessage = 'Failed to analyze offer. Please try again.';
+      
+      if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      // Provide more specific error messages
+      if (error?.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please refresh the page and try again.';
+      } else if (error?.response?.status === 429) {
+        errorMessage = 'Rate limit exceeded. Please wait a moment and try again.';
+      } else if (error?.response?.status === 500) {
+        errorMessage = 'Server error. The AI service may be temporarily unavailable. Please try again in a moment.';
+      } else if (error?.code === 'ECONNABORTED' || error?.message?.includes('timeout')) {
+        errorMessage = 'Request timed out. The analysis is taking longer than expected. Please try again.';
+      } else if (error?.code === 'ERR_NETWORK' || error?.message?.includes('Network Error')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+      
+      alert(`❌ ${errorMessage}`);
     } finally {
       setLoading(false);
     }
