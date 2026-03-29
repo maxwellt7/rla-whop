@@ -178,7 +178,28 @@ export async function getLatestGeneration(projectId: string): Promise<{
 
 // Export Document
 export async function exportDocument(projectId: string, format: 'pdf' | 'docx' | 'md'): Promise<Blob> {
-  const response = await api.post(`/export/${format}`, { projectId }, {
+  // Send projectData so the server can generate the export
+  let projectData = null;
+  const storedData = localStorage.getItem('rapid-launch-storage');
+  if (storedData) {
+    try {
+      const parsed = JSON.parse(storedData);
+      const currentProject = parsed.state?.currentProject;
+      if (currentProject) {
+        projectData = {
+          offer: currentProject.offer,
+          avatar: currentProject.avatar,
+          competitors: currentProject.competitors,
+          manifold: currentProject.manifold,
+          launchDoc: currentProject.launchDoc,
+        };
+      }
+    } catch (e) {
+      console.error('Error parsing project data for export:', e);
+    }
+  }
+
+  const response = await api.post(`/export/${format}`, { projectId, projectData }, {
     responseType: 'blob',
   });
   return response.data;

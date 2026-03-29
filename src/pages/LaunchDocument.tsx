@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../store/useProjectStore';
 import { FileText, Download, Loader2, Search, RefreshCw, Package } from 'lucide-react';
-import { generateLaunchDocument, getGenerationProgress, getLatestGeneration } from '../services/api';
+import { generateLaunchDocument, getGenerationProgress, getLatestGeneration, exportDocument } from '../services/api';
 import ReactMarkdown from 'react-markdown';
 
 export default function LaunchDocument() {
@@ -148,8 +148,19 @@ export default function LaunchDocument() {
   };
 
   const handleExport = async (format: 'pdf' | 'docx' | 'md') => {
-    // TODO: Implement export functionality
-    alert(`Export as ${format.toUpperCase()} will be implemented`);
+    if (!currentProject) return;
+    try {
+      const blob = await exportDocument(currentProject.id, format);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `launch-document.${format}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      const msg = error?.response?.data?.error || error?.message || 'Export failed';
+      alert(`Export failed: ${msg}`);
+    }
   };
 
   const filteredSections = launchDoc?.sections?.filter(section =>

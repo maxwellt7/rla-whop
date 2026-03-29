@@ -61,11 +61,11 @@ Primary Currency: ${context.avatar.primaryCurrency}
 Million Dollar Message: ${context.avatar.millionDollarMessage}
 
 ${context.manifold ? `MANIFOLD INSIGHTS:
-Core Wound: ${context.manifold.coreWound?.substring(0, 300)}...
-Big Idea Hooks: ${context.manifold.hooks?.substring(0, 300)}...` : ''}
+${context.manifold.coreWound ? `Core Wound: ${context.manifold.coreWound.substring(0, 300)}` : ''}
+${context.manifold.hooks ? `Big Idea Hooks: ${context.manifold.hooks.substring(0, 300)}` : ''}` : ''}
 
-${context.competitors ? `COMPETITOR INSIGHTS:
-Positioning Angles: ${context.competitors.positioningAngles?.join(', ')}` : ''}
+${context.competitors?.positioningAngles ? `COMPETITOR INSIGHTS:
+Positioning Angles: ${context.competitors.positioningAngles.join(', ')}` : ''}
 
 Create a comprehensive, detailed section covering all aspects of ${sectionData.title}.
 Include specific examples, frameworks, and actionable recommendations.
