@@ -66,6 +66,55 @@ app.get('/api/auth/whop', (req, res) => {
   res.json({ authUrl });
 });
 
+app.post('/api/auth/callback', async (req, res) => {
+  try {
+    const { code, redirectUri } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ success: false, error: 'Authorization code is required' });
+    }
+
+    const clientId = process.env.WHOP_CLIENT_ID || 'app_RsMn7IKRAMfuhN';
+    const clientSecret = process.env.WHOP_CLIENT_SECRET;
+
+    if (!clientSecret) {
+      return res.status(500).json({ success: false, error: 'Whop client secret not configured' });
+    }
+
+    const tokenResponse = await fetch('https://api.whop.com/v5/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        grant_type: 'authorization_code',
+        client_id: clientId,
+        client_secret: clientSecret,
+        code,
+        redirect_uri: redirectUri || process.env.WHOP_REDIRECT_URI,
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const errorData = await tokenResponse.json().catch(() => ({}));
+      console.error('Whop token exchange failed:', errorData);
+      return res.status(401).json({ success: false, error: 'Failed to exchange authorization code' });
+    }
+
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
+
+    const userResponse = await fetch('https://api.whop.com/v5/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const user = userResponse.ok ? await userResponse.json() : { id: 'unknown' };
+
+    res.json({ success: true, token: accessToken, user });
+  } catch (error) {
+    console.error('OAuth callback error:', error);
+    res.status(500).json({ success: false, error: 'OAuth callback failed' });
+  }
+});
+
 app.get('/api/user/profile', authenticateWhopUser, async (req, res) => {
   try {
     const subscriptionTier = await getUserSubscriptionTier(req.userId, req.whopToken || req.headers.authorization?.substring(7), req);
