@@ -65,13 +65,13 @@ Always be specific and actionable. Never give generic advice.`;
       if (projectData.manifold) {
         contextData += '## KEY PSYCHOLOGICAL INSIGHTS (From Manifold)\n';
         
-        if (projectData.manifold.coreWound) {
+        if (typeof projectData.manifold.coreWound === 'string') {
           contextData += `Core Wound: ${projectData.manifold.coreWound.substring(0, 500)}...\n\n`;
         }
-        if (projectData.manifold.hooks) {
+        if (typeof projectData.manifold.hooks === 'string') {
           contextData += `Hooks (First 500 chars): ${projectData.manifold.hooks.substring(0, 500)}...\n\n`;
         }
-        if (projectData.manifold.languagePatterns) {
+        if (typeof projectData.manifold.languagePatterns === 'string') {
           contextData += `Language Patterns (First 500 chars): ${projectData.manifold.languagePatterns.substring(0, 500)}...\n\n`;
         }
       }

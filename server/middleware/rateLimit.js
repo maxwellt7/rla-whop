@@ -28,7 +28,10 @@ export const rateLimitMiddleware = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Rate limit middleware error:', error);
-    next();
+    res.status(500).json({
+      success: false,
+      error: 'Rate limit check failed',
+    });
   }
 };
 

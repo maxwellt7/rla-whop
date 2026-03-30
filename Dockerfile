@@ -1,5 +1,5 @@
 # Backend Dockerfile for Railway deployment
-FROM node:20-alpine
+FROM node:20-alpine AS production
 
 # Set working directory
 WORKDIR /app
@@ -11,7 +11,7 @@ RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy server code
 COPY server ./server

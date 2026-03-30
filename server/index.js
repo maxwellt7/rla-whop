@@ -94,13 +94,24 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Route not found',
+// Serve static frontend files in production
+const distPath = join(__dirname, '..', 'dist');
+import { existsSync } from 'fs';
+if (existsSync(distPath)) {
+  app.use(express.static(distPath));
+  // Serve index.html for client-side routes (SPA fallback)
+  app.get('*', (req, res) => {
+    res.sendFile(join(distPath, 'index.html'));
   });
-});
+} else {
+  // 404 handler (dev mode — frontend served by Vite)
+  app.use((req, res) => {
+    res.status(404).json({
+      success: false,
+      error: 'Route not found',
+    });
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`🚀 Rapid Launch Agent server running on port ${PORT}`);
